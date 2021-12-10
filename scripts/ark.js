@@ -6,8 +6,9 @@
     let mX, mY;
     let brickWidth = 16;
     let brickHeight = 8;
-    let pixelSize = 5;
+    let pixelSize = 4;
     let speed = 5;
+    let bspeedh = 5;
 
     let bricks = [
         { color: dcl.palette.cga[15], points: () => 50, destructable: true, life: 1 },
@@ -104,19 +105,18 @@
     let px, py, bx, by, ba, bv, bh,bbtop,bbleft,bbright;
 
     function setup() {
-        scr = dcl.setupScreen(window.innerWidth, window.innerHeight);
+        scr = dcl.setupScreen(800, window.innerHeight);
         scr.setBgColor('black');
         document.body.style.backgroundColor = 'grey';
         mX = floor(scr.width / 2 - (cols * brickWidth * pixelSize) / 2);
         px = floor(floor(scr.width / 2) - (25 * pixelSize) / 2);
         py = floor(scr.height - 6 * pixelSize - scr.height / 5);
-        bx = px + floor((25 * pixelSize) / 2);
+        bx = px+ floor((25 * pixelSize) / 2) - floor((5*pixelSize)/2);
         by = py - 5 * pixelSize;
-        ba = 2;
         bv = 5;
-        bbtop = {x:0, y:0, width:scr.width, height:0};
-        bbleft = {x:0, y:0, width:0, height:scr.height};
-        bbright = {x:scr.width-5, y:0, width:0, height:scr.height};
+        bbtop = {x:-0, y:-100, width:scr.width, height:100};
+        bbleft = {x:-100, y:0, width:100, height:scr.height};
+        bbright = {x:scr.width-5, y:0, width:100, height:scr.height};
     }
 
     function update() {
@@ -135,8 +135,20 @@
         }
         let bbball = { x: bx, y: by, width: 5 * pixelSize, height: 5 * pixelSize };
         const bbpaddle = { x: px, y: py, width: 25 * pixelSize, height: 6 * pixelSize };
-        if(hitTest(bbball, bbpaddle)){
+        
+        breakout: if(hitTest(bbball, bbpaddle)){
+            if(by>py){
+                break breakout;
+            }
             bv = -bv;
+            let npx = px + (25*pixelSize)/2;
+            let nbx = bx + (5*pixelSize)/2;
+            let ndiff = (nbx-npx)/((25*pixelSize/2));
+            bh = ndiff*bspeedh;
+            speed += Math.abs(ndiff);
+            if(speed > 10){
+                speed = 10;
+            }
         }
         if(hitTest(bbball,bbtop )){
             bv = -bv;
@@ -145,6 +157,7 @@
             bh = -bh;
         }
         by += bv;
+        bx += bh;
     }
 
     function main(dt) {
